@@ -120,15 +120,15 @@ def get_videos(s, dep, course):
     videos = [Video(v, s) for v in videos]
     logger.debug("Got video URLs")
 
-    lecture_data = []
+    lecture_data = {}
     for v in videos:
-        lecture_data.append({
+        lecture_data[v.video_id] = {
             "name": v.name,
             "date": v.date,
             "url": v.url,
             "thumbnail": v.thumbnail,
             "description": v.description
-        })
+        }
     return lecture_data
 
 def get_metadata(s):
@@ -156,7 +156,7 @@ def get_metadata(s):
     #   text: dept name,
     #   courses: {course num: {
     #       text: course name,
-    #       videos: { name : url }
+    #       videos: { id : {urlm data} }
     # }}}
     # because this will be yamled easily
 
