@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup as BS
 # import youtube_dl
 import datetime
 import json
-import urllib
+import urllib.parse
 import re
 import os
 import logging
@@ -21,12 +21,15 @@ class Video(object):
     def __init__(self, bs_obj, s):
         self.bs_obj = bs_obj
 
+        #todo: try and construct url from thumbnail
+        # if the url is valid, cache it?
         req = s.get(self.page_url)
         self.url = re.findall("'file': '(http://.*?\\.m3u8)'", req.content.decode())[0]
 
     @property
     def date(self):
         raw_date = self.bs_obj.find("span").text.split(' ')[2]
+        return raw_date
 
         if raw_date == "00-00-0000":
             return datetime.datetime(1,1,1)
@@ -39,9 +42,9 @@ class Video(object):
 
     @property
     def video_id(self):
-        query = urllib.urlparse(self.page_url).query
-        query_string = urllib.parse_qs(query)
-        return query_string["id"]
+        query = urllib.parse.urlparse(self.page_url).query
+        query_string = urllib.parse.parse_qs(query)
+        return query_string["id"][0]
 
     @property
     def thumbnail(self):
@@ -156,7 +159,7 @@ def get_metadata(s):
     #   text: dept name,
     #   courses: {course num: {
     #       text: course name,
-    #       videos: { id : {urlm data} }
+    #       videos: { id : {url, data} }
     # }}}
     # because this will be yamled easily
 
@@ -186,20 +189,10 @@ def main():
     s = login(*tau_login.creds)
 
     metadata = get_metadata(s)
+    with open('videos.json', 'w') as f:
+        f.write(json.dumps(metadata))
 
-    #todo: yamlize page for each dept, then for each course, then for each video... or template direct from json?
     return
-
-    logger.info("getting videos")
-    videos = get_video_list(s)
-
-    v = [Video(i, s) for i in videos]
-
-    logger.info(f"found {len(v)} videos")
-
-    for i in v:
-        i.download()
-
 
 if __name__ == '__main__':
     main()

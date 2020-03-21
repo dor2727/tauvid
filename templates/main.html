@@ -2,18 +2,18 @@
 
 {% block content %}
     <div class="container">
-        <h1>{{text}}</h1>
+        <h1>TAU Video Server</h1>
         <div class="flexgrid">
-        	{% for dep in departments %}
-        		<div class="flexitem">
-        			<a href="{{dep.url}}">
-        				<img src="{{dep.thumbnail}}">
-        			</a>
-        			<div>
-        				<h2>{{dep.text}}</h2>
-        			</div>
-        		</div>
-        	{% endfor %}
+            {% for dep in departments %}
+                <div class="flexitem">
+                    <a href="{{dep.url}}">
+                        <img src="{{dep.thumbnail}}">
+                    </a>
+                    <div>
+                        <h2>{{dep.text}}</h2>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

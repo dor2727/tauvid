@@ -4,16 +4,16 @@
     <div class="container">
         <h1>{{text}}</h1>
         <div class="flexgrid">
-        	{% for course in courses %}
-        		<div class="flexitem">
-        			<a href="{{course.url}}">
-        				<img src="{{course.thumbnail}}">
-        			</a>
-        			<div>
-        				<h2>{{course.text}}</h2>
-        			</div>
-        		</div>
-        	{% endfor %}
+            {% for course in courses %}
+                <div class="flexitem">
+                    <a href="{{course.url}}">
+                        <img src="{{course.thumbnail}}">
+                    </a>
+                    <div>
+                        <h2>{{course.text}}</h2>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

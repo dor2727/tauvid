@@ -4,17 +4,17 @@
     <div class="container">
         <h1>{{text}}</h1>
         <div class="flexgrid">
-        	{% for video in videos %}
-        		<div class="flexitem">
-        			<a href="{{video.url}}">
-        				<img src="{{video.thumbnail}}">
-        			</a>
-        			<div>
-        				<h2>{{video.name}} - {{video.date}}</h2>
-        				<p>{{video.description}}</p>
-        			</div>
-        		</div>
-        	{% endfor %}
+            {% for video in videos %}
+                <div class="flexitem">
+                    <a href="{{video.url}}">
+                        <img src="{{video.thumbnail}}">
+                    </a>
+                    <div>
+                        <h2>{{video.name}} - {{video.date}}</h2>
+                        <p>{{video.description}}</p>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}
