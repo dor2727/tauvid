@@ -1,12 +1,13 @@
+SHELL := /bin/bash
+
 .PHONY: all
 
 scrape:
-	python scrape_videos.py
+	python3 scrape_videos.py
 
 render:
-	python render.py
+	python3 render.py
 
-local: render
-	pushd output
-	python -m SimpleHTTPServer
-	popd
+local: render ./static/ ./templates/
+	cp -R static/. output
+	cd output && python3 -m http.server
