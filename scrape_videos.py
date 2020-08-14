@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import requests
 from bs4 import BeautifulSoup as BS
 # import youtube_dl
@@ -7,12 +9,14 @@ import urllib.parse
 import re
 import os
 import logging
+import html
 import tau_login
 
 logger = logging.getLogger('scrape_videos')
 logging.basicConfig(level=logging.INFO, format='[*] %(message)s')
 
 BASE_URL = "http://video.tau.ac.il"
+LOGIN_URL = "http://video.tau.ac.il/index.php"
 VIDEO_LIST_URL = "http://video.tau.ac.il/index.php?option=com_videos&Itemid=53&lang=he"
 VIDEO_VIEW_URL = "http://video.tau.ac.il/index.php?option=com_videos&Itemid=53&lang=he&view=video&id={video_id}"
 
@@ -24,7 +28,10 @@ class Video(object):
         #todo: try and construct url from thumbnail
         # if the url is valid, cache it?
         req = s.get(self.page_url)
-        self.url = re.findall("'file': '(http://.*?\\.m3u8)'", req.content.decode())[0]
+        if len(re.findall("'file': '(http://.*?\\.m3u8)'", req.content.decode())) == 0:
+            self.url = ''
+        else:
+            self.url = re.findall("'file': '(http://.*?\\.m3u8)'", req.content.decode())[0]
 
     @property
     def date(self):
@@ -67,7 +74,7 @@ class Video(object):
 def login(username, password):
     s = requests.session()
     logger.info("Parsing login form")
-    login = s.get(BASE_URL)
+    login = s.get(LOGIN_URL)
 
     login_bs = BS(login.content, features="html.parser")
     login_bs_form = login_bs.find("form")
@@ -88,7 +95,7 @@ def login(username, password):
 
     # assuming login_bs_form.method is POST
     logger.info("Logging in")
-    post_login = s.post(login_url, post_data)
+    s.post(login_url, post_data)
 
     return s
 
@@ -126,11 +133,11 @@ def get_videos(s, dep, course):
     lecture_data = {}
     for v in videos:
         lecture_data[v.video_id] = {
-            "name": v.name,
-            "date": v.date,
+            "name": html.unescape(v.name),
+            "date": html.unescape(v.date),
             "url": v.url,
             "thumbnail": v.thumbnail,
-            "description": v.description
+            "description": html.unescape(v.description),
         }
     return lecture_data
 
@@ -165,23 +172,19 @@ def get_metadata(s):
 
     sane_data = {}
 
-    for dep in ['0104']:  # metadata:
+    for dep in metadata:
         if dep not in dept_names:
             dept_names[dep] = f"{dep} - Uncategorized"
         courses = metadata[dep]
         sane_data[dep] = {
-            "text": dept_names[dep],
+            "text": html.unescape(dept_names[dep]),
             "courses": {
-                c: { "text": courses[c]["text"], "videos": get_videos(s, dep, c) } for c in courses
+                c: { "text": html.unescape(courses[c]["text"]), "videos": get_videos(s, dep, c) } for c in courses
             }
         }
-        break
 
     return sane_data
 
-
-
-BASE_URL = "http://video.tau.ac.il"
 
 
 def main():
@@ -189,7 +192,7 @@ def main():
     s = login(*tau_login.creds)
 
     metadata = get_metadata(s)
-    with open('videos.json', 'w') as f:
+    with open('videos.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(metadata))
 
     return
