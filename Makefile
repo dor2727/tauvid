@@ -5,8 +5,8 @@ SHELL := /bin/bash
 scrape:
 	python3 scrape_videos.py
 
-render:
-	python3 render.py
+render: videos2.json
+	python3 render.py videos2.json
 
 local: render ./static/ ./templates/
 	cp -R static/. output
