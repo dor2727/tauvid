@@ -1,12 +1,52 @@
 {% extends 'layout.html' %}
 
+{% block scripts %}
+    <link href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="/js/video.js"></script>
+
+{% endblock %}
+
 {% block content %}
-    <div class="container">
-        <h1>{{name}} - {{date}}</h1>
-        <div>
-            <img src="{{thumbnail}}"/>
-            <video src="{{url}}"/>
-        </div>
-        <p>{{description}}</p>
+    <div class="pure-g">
+        <div class="pure-u-1 center"><h1>{{name}}</h1></div>
     </div>
+
+    <div class="pure-g">
+        <div class="pure-u-1 center">
+            <div class="limit-width video-container">
+                <video id="video" controls></video>
+                <span class="hidden" id="video-url">{{url}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="pure-g">
+        <div class="pure-u-1 center">
+            <div class="limit-width text-container" id="video-controls">
+                <div>
+                    <button class="control-button" id="video-back-60" title="Back 60s"><i class="fa fa-fast-backward"></i></button>
+                    <button class="control-button" id="video-back-10" title="Back 10s"><i class="fa fa-step-backward"></i></button>
+                    <button class="control-button" id="video-fwd-10" title="Forward 10s"><i class="fa fa-step-forward"></i></button>
+                    <button class="control-button" id="video-fwd-60" title="Forward 60s"><i class="fa fa-fast-forward"></i></button>
+                </div>
+                <div>
+                    <button class="control-button" id="video-speed-down" title="0.1x Slower"><i class="fa fa-minus"></i></button>
+                    <span id="video-speed">1.0x</span>
+                    <button class="control-button" id="video-speed-up" title="0.1x Faster"><i class="fa fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pure-g">
+        <div class="pure-u-1 center">
+            <div class="limit-width text-container">
+                <h3>פרטים</h3>
+                <p>{{date}}</p>
+                <p>{{description}}</p>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

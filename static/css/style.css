@@ -1,0 +1,200 @@
+:root {
+    --tau-black: #001718;
+    --tau-blue: #66bff1;
+    --gray-1: #202020;
+    --gray-2: #404040;
+    --gray-3: #606060;
+    --gray-4: #808080;
+    --gray-5: #a0a0a0;
+    --gray-6: #c0c0c0;
+    --gray-7: #e0e0e0;
+
+    color: var(--tau-black);
+
+    direction: rtl;
+}
+
+body, html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+body, html, button, input, select, textarea,
+.pure-g [class *= "pure-u"] {
+    font-family: 'Open Sans Hebrew', 'Open Sans', sans-serif;
+}
+
+a {
+    text-decoration: none;
+    // color: var(--aero-blue);
+    color: var(--tau-black);
+}
+
+a:hover {
+    text-decoration: none;
+    // color: var(--aero-light);
+    color: var(--tau-black);
+}
+
+#header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    background-color: var(--tau-blue);
+    margin: 0;
+}
+
+#content { 
+    flex: 1 0 auto;
+}
+
+#footer {
+    width: 100%;
+    margin-top: 100px;
+    min-height: 40px;
+    color: white;
+    justify-content: center;
+    background-color: var(--tau-black);
+    flex-shrink: 0;
+}
+
+#header-text {
+    display: block;
+    font-size: 7rem;
+    border-bottom: 15px solid var(--tau-black);
+    margin: 35px 15px;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+.limit-width, video {
+    max-width: 768px;
+    width: 100%;
+}
+
+.griditem, .text-container {
+    display: block;
+    padding: 10px;
+    margin: 20px;
+    background-color: var(--gray-7);
+}
+
+#video-controls {
+    direction: ltr;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+}
+
+#video-controls div {
+    display: inline-block;
+}
+
+.control-button {
+    background-color: var(--tau-blue);
+    color: white;
+    margin: 0.5rem;
+    border: 0px;
+    width: 3rem;
+    height: 3rem;
+}
+
+#video-speed {
+    padding: 0 0.5rem;
+    width: 5rem;
+    display: inline-block;
+    text-align: center;
+    font-variant: bold;
+}
+
+.griditem div {
+    display: flex;
+    justify-content: center;
+}
+
+.griditem div.right {
+    display: block;
+    text-align: right;
+}
+
+.griditem div.right p:first-child {
+    margin-top: 0;
+}
+
+#breadcrumbs {
+    width: 100%;
+    background-color: var(--tau-black);
+    color: white;
+}
+
+@media not screen and (min-width: 64em) {
+
+    ul.breadcrumb {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    ul.breadcrumb li {
+        display: block;
+        font-size: 1rem;
+    }
+
+    ul.breadcrumb li a:before, ul.breadcrumb li span:before {
+        padding: 3px;
+        color: #ccc;
+        content: "〉\00a0";
+    }
+
+    ul.breadcrumb li a, ul.breadcrumb li span {
+        display: block;
+        width: 100%;
+        padding: 10px 0 10px 0;
+        color: white;
+        text-decoration: none;
+    }
+
+    ul.breadcrumb li > a:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+}
+
+@media screen and (min-width: 64em) {
+
+    ul.breadcrumb {
+        padding: 10px 16px;
+        margin: 0;
+        list-style: none;
+    }
+
+    ul.breadcrumb li {
+        display: inline;
+        font-size: 1.5rem;
+    }
+
+    ul.breadcrumb li+li:before {
+        padding: 3px;
+        color: #ccc;
+        content: "/\00a0";
+    }
+
+    ul.breadcrumb li a {
+        display: inline;
+        padding: 0px 5px;
+        color: white;
+        text-decoration: none;
+        border-radius: 3px;
+    }
+
+    ul.breadcrumb li > a:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+}
