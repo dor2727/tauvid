@@ -38,10 +38,12 @@ class Video(object):
         raw_date = self.bs_obj.find("span").text.split(' ')[2]
         return raw_date
 
-        if raw_date == "00-00-0000":
+    @property
+    def parsed_date(self):
+        if self.date == "00-00-0000":
             return datetime.datetime(1,1,1)
 
-        return datetime.datetime.strptime(raw_date, "%d-%m-%Y")
+        return datetime.datetime.strptime(self.date, "%d-%m-%Y")
 
     @property
     def page_url(self):
@@ -130,6 +132,9 @@ def get_videos(s, dep, course):
     videos = [Video(v, s) for v in videos]
     logger.debug("Got video URLs")
 
+    if len(videos) == 0:
+        return None, None, None
+
     lecture_data = {}
     for v in videos:
         lecture_data[v.video_id] = {
@@ -139,7 +144,10 @@ def get_videos(s, dep, course):
             "thumbnail": v.thumbnail,
             "description": html.unescape(v.description),
         }
-    return lecture_data
+
+    newest = max(videos, key=lambda v: v.parsed_date)
+
+    return lecture_data, newest.thumbnail, newest.parsed_date
 
 def get_metadata(s):
     logger.info("Getting metadata")
@@ -166,23 +174,39 @@ def get_metadata(s):
     #   text: dept name,
     #   courses: {course num: {
     #       text: course name,
+    #       thumbnail: course thumb,
     #       videos: { id : {url, data} }
     # }}}
     # because this will be yamled easily
 
     sane_data = {}
 
-    for dep in metadata:
+    for dep in ['0104']:
         if dep not in dept_names:
             dept_names[dep] = f"{dep} - Uncategorized"
         courses = metadata[dep]
+
+        thumbs = {}
+        course_metadata = {}
+        for c in courses:
+            videos, thumbnail, thumb_date = get_videos(s, dep, c)
+            if videos == None:
+                continue
+
+            course_metadata[c] = {
+                "text": html.unescape(courses[c]["text"]),
+                "videos": videos,
+                "thumbnail": thumbnail
+            }
+
+            thumbs[thumb_date] = thumbnail
+
         sane_data[dep] = {
             "text": html.unescape(dept_names[dep]),
-            "courses": {
-                c: { "text": html.unescape(courses[c]["text"]), "videos": get_videos(s, dep, c) } for c in courses
-            }
+            "courses": course_metadata,
+            "thumbnail": thumbs[max(thumbs)],
         }
-
+        break
     return sane_data
 
 
@@ -192,7 +216,7 @@ def main():
     s = login(*tau_login.creds)
 
     metadata = get_metadata(s)
-    with open('videos.json', 'w', encoding='utf-8') as f:
+    with open('videos2.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(metadata))
 
     return

@@ -21,7 +21,7 @@ def gen_main(metadata, env):
     for dep in sorted(metadata):
         department_data.append({
             'url': f'/{dep}',
-            'thumbnail': f'/{dep}/thumb.jpg',
+            'thumbnail': metadata[dep]['thumbnail'],
             'text': metadata[dep]['text']
         })
         gen_department(dep, metadata[dep], breadcrumbs, env)
@@ -43,7 +43,7 @@ def gen_department(dep_id, metadata, breadcrumbs, env):
     for course_id in sorted(metadata['courses']):
         courses.append({
             'url': f'/{item_uri}/{course_id}',
-            'thumbnail': f'/{item_uri}/{course_id}/thumb.jpg',
+            'thumbnail': metadata['courses'][course_id]['thumbnail'],
             'text': metadata['courses'][course_id]['text']
         })
         gen_course(dep_id, course_id, metadata['courses'][course_id], breadcrumbs, env)
