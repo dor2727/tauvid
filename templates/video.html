@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block content %}
+{% if url %}
     <div class="pure-g">
         <div class="pure-u-1 center"><h1>{{name}}</h1></div>
     </div>
@@ -49,4 +50,14 @@
         </div>
     </div>
 
+{% else %}
+    <div class="pure-g">
+        <div class="pure-u-1 center">
+            <div class="limit-width text-container">
+                <h3>ההקלטה לא תקינה 😥 &em; נסו לצפות באתר הישן <a href="http://video.tau.ac.il/index.php?option=com_videos&view=video&id={{vid_id}}">כאן</a></h3>
+            </div>
+        </div>
+    </div>
+
+{% endif %}
 {% endblock %}

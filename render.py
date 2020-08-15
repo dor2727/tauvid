@@ -78,7 +78,12 @@ def gen_course(dep_id, course_id, metadata, breadcrumbs, env):
         gen_video(dep_id, course_id, vid_id, vid_s, breadcrumbs, env)
 
     logger.info("    Rendering Course %s-%s", dep_id, course_id)
-    rendered = env.get_template('course.html').render(text=metadata['text'], videos=videos, breadcrumbs=breadcrumbs, title=fmt_title(metadata['text']))
+    rendered = env.get_template('course.html').render(
+        text=metadata['text'],
+        videos=videos,
+        breadcrumbs=breadcrumbs,
+        title=fmt_title(metadata['text'])
+    )
     with open(f'output/{item_uri}/index.html', 'w', encoding='utf-8') as f:
         f.write(rendered)
 
@@ -91,7 +96,12 @@ def gen_video(dep_id, course_id, vid_id, metadata, breadcrumbs, env):
     breadcrumbs = [i for i in breadcrumbs] + [(metadata['name'], f'/{item_uri}')]
     
     logger.info("      Rendering Video %s-%s-%s", dep_id, course_id, vid_id)
-    rendered = env.get_template('video.html').render(**metadata, breadcrumbs=breadcrumbs, title=fmt_title(metadata['name']))
+    rendered = env.get_template('video.html').render(
+        **metadata,
+        vid_id=vid_id,
+        breadcrumbs=breadcrumbs,
+        title=fmt_title(metadata['name'])
+    )
     with open(f'output/{item_uri}/index.html', 'w', encoding='utf-8') as f:
         f.write(rendered)
 

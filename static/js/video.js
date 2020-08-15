@@ -22,6 +22,20 @@ function gen_handle_speed(video, indicator, diff) {
 }
 
 
+
+onReady(function(){
+    var video = document.getElementById('video');
+    if(Hls.isSupported()) {
+        var hls = new Hls();
+        hls.loadSource(video_url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED,function() {
+            video.play();
+        });
+    }
+});
+
+
 onReady(function(){
     var video = document.getElementById('video');
     var video_url = document.getElementById('video-url').innerText;

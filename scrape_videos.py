@@ -7,7 +7,6 @@ import datetime
 import json
 import urllib.parse
 import re
-import os
 import logging
 import html
 import tau_login
@@ -101,21 +100,24 @@ def login(username, password):
 
     return s
 
-
-def get_videos(s, dep, course):
-    # get items for course post request
-    logger.info("Getting metadata for %s-%s", dep, course)
+def video_post_data(s):
     logger.debug("Sending request to get form for getting videos")
     main_page = s.get(VIDEO_LIST_URL)
     main_page_bs = BS(main_page.content, features="html.parser")
     main_page_form = main_page_bs.find("form", id="adminForm") 
     inputs = main_page_form.find_all("input")
 
-    post_data = {
+    return {
         i["name"]: i["value"]
         for i in inputs
         if i.has_attr("value") and i.has_attr("name")
     }
+
+
+def get_videos(s, post_data, dep, course):
+    # get items for course post request
+    logger.info("Getting metadata for %s-%s", dep, course)
+
     post_data.update({
         "dep_id": dep,
         "course_id": course,
@@ -166,12 +168,17 @@ def get_metadata(s):
     metadata = metadata[metadata.index("{") : metadata.rindex("}") + 1]  # bounds of actual json
     metadata = json.loads(metadata)
 
+    logger.info("Scraping Video List Request Format")
+    video_data = video_post_data(s)
+
+
     # the metadata format is:
     # dept num: {course num: {course name, course num}}
 
     # desired format is
     # dept num: {
     #   text: dept name,
+    #   thumbnail: dep thumb,
     #   courses: {course num: {
     #       text: course name,
     #       thumbnail: course thumb,
@@ -181,7 +188,7 @@ def get_metadata(s):
 
     sane_data = {}
 
-    for dep in ['0104']:
+    for dep in metadata:
         if dep not in dept_names:
             dept_names[dep] = f"{dep} - Uncategorized"
         courses = metadata[dep]
@@ -189,14 +196,14 @@ def get_metadata(s):
         thumbs = {}
         course_metadata = {}
         for c in courses:
-            videos, thumbnail, thumb_date = get_videos(s, dep, c)
+            videos, thumbnail, thumb_date = get_videos(s, video_data, dep, c)
             if videos == None:
                 continue
 
             course_metadata[c] = {
                 "text": html.unescape(courses[c]["text"]),
                 "videos": videos,
-                "thumbnail": thumbnail
+                "thumbnail": thumbnail,
             }
 
             thumbs[thumb_date] = thumbnail
@@ -206,7 +213,6 @@ def get_metadata(s):
             "courses": course_metadata,
             "thumbnail": thumbs[max(thumbs)],
         }
-        break
     return sane_data
 
 
@@ -216,7 +222,7 @@ def main():
     s = login(*tau_login.creds)
 
     metadata = get_metadata(s)
-    with open('videos2.json', 'w', encoding='utf-8') as f:
+    with open('videos.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(metadata))
 
     return
