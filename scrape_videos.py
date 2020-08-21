@@ -10,6 +10,7 @@ import re
 import logging
 import html
 import tau_login
+import concurrent.futures
 
 logger = logging.getLogger('scrape_videos')
 logging.basicConfig(level=logging.INFO, format='[*] %(message)s')
@@ -151,6 +152,7 @@ def get_videos(s, post_data, dep, course):
 
     return lecture_data, newest.thumbnail, newest.parsed_date
 
+
 def get_metadata(s):
     logger.info("Getting metadata")
     vid_list = s.get(VIDEO_LIST_URL)
@@ -186,9 +188,7 @@ def get_metadata(s):
     # }}}
     # because this will be yamled easily
 
-    sane_data = {}
-
-    for dep in metadata:
+    def get_department(dep):
         if dep not in dept_names:
             dept_names[dep] = f"{dep} - Uncategorized"
         courses = metadata[dep]
@@ -208,13 +208,29 @@ def get_metadata(s):
 
             thumbs[thumb_date] = thumbnail
 
-        sane_data[dep] = {
+        return {
             "text": html.unescape(dept_names[dep]),
             "courses": course_metadata,
             "thumbnail": thumbs[max(thumbs)],
         }
-    return sane_data
 
+
+    sane_data = {}
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = {dep: executor.submit(get_department, dep) for dep in metadata}
+
+        for dep in concurrent.futures.as_completed(futures):
+                f = futures[dep]
+                try:
+                    data = f.result()
+                except Exception as exc:
+                    logging.exception("Exception scraping %u", dep, exc_info=exc)
+                else:
+                    logging.info("Done scraping %u", dep)
+                    sane_data[dep] = data
+
+    return sane_data
 
 
 def main():

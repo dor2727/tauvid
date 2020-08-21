@@ -27,7 +27,12 @@ def gen_main(metadata, env):
         gen_department(dep, metadata[dep], breadcrumbs, env)
 
     logger.info("Rendering Main Page")
-    rendered = env.get_template('main.html').render(departments=department_data, breadcrumbs=breadcrumbs, title='tauvid')
+    rendered = env.get_template('main.html').render(
+        departments=department_data,
+        breadcrumbs=breadcrumbs,
+        title='tauvid'
+    )
+
     with open('output/index.html', 'w', encoding='utf-8') as f:
         f.write(rendered)
 
@@ -49,7 +54,13 @@ def gen_department(dep_id, metadata, breadcrumbs, env):
         gen_course(dep_id, course_id, metadata['courses'][course_id], breadcrumbs, env)
 
     logger.info("  Rendering Department %s", dep_id)
-    rendered = env.get_template('department.html').render(text=metadata['text'], courses=courses, breadcrumbs=breadcrumbs, title=fmt_title(metadata['text']))
+    rendered = env.get_template('department.html').render(
+        text=metadata['text'],
+        courses=courses,
+        breadcrumbs=breadcrumbs,
+        title=fmt_title(metadata['text'])
+    )
+
     with open(f'output/{item_uri}/index.html', 'w', encoding='utf-8') as f:
         f.write(rendered)
 
@@ -84,6 +95,7 @@ def gen_course(dep_id, course_id, metadata, breadcrumbs, env):
         breadcrumbs=breadcrumbs,
         title=fmt_title(metadata['text'])
     )
+
     with open(f'output/{item_uri}/index.html', 'w', encoding='utf-8') as f:
         f.write(rendered)
 
@@ -102,6 +114,7 @@ def gen_video(dep_id, course_id, vid_id, metadata, breadcrumbs, env):
         breadcrumbs=breadcrumbs,
         title=fmt_title(metadata['name'])
     )
+
     with open(f'output/{item_uri}/index.html', 'w', encoding='utf-8') as f:
         f.write(rendered)
 
