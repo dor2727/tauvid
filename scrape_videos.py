@@ -17,11 +17,11 @@ from video_client import VideoClient
 logger = logging.getLogger('scrape_videos')
 logging.basicConfig(level=logging.INFO, format='[*] %(message)s')
 
-BASE_URL = "http://video.tau.ac.il"
 LOGIN_URL = "http://video.tau.ac.il/index.php"
 VIDEO_LIST_URL = "http://video.tau.ac.il/index.php?option=com_videos&Itemid=53&lang=he"
 VIDEO_VIEW_URL = "http://video.tau.ac.il/index.php?option=com_videos&Itemid=53&lang=he&view=video&id={video_id}"
 
+BASE_URL = "https://video.tau.ac.il"
 IMAGE_TEMPLATE = ("https://video.tau.ac.il/files/", ".jpg")
 VIDEO_TEMPLATE = ("https://vod.tau.ac.il/Courses/_definst_/mp4:", ".mp4/playlist.m3u8")
 
@@ -53,11 +53,11 @@ class Video(object):
 
     @property
     def thumbnail(self):
-        return BASE_URL + self.bs_obj.find('img').get("src").replace('http', 'https')
+        return BASE_URL + self.bs_obj.find('img').get("src")
 
     @property
     def url(self):
-        uri = self.thumbnail.replace('http', 'https').replace(IMAGE_TEMPLATE[0], '').replace(IMAGE_TEMPLATE[-1], '')
+        uri = self.thumbnail.replace(IMAGE_TEMPLATE[0], '').replace(IMAGE_TEMPLATE[-1], '')
         return VIDEO_TEMPLATE[0] + uri + VIDEO_TEMPLATE[1]
 
     @property
