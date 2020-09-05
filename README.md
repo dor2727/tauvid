@@ -1,4 +1,4 @@
-#tauvid
+# tauvid
 
 Work in progress.
 
@@ -12,7 +12,8 @@ then run `scrape_videos.py`.
 
 To render, run `render.py` and then serve the `output` directory as a static site.
 
-###TODO:
+### TODO:
+handle bad videos
 empty categories
 uncategorized
 login like bid-it

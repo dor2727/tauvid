@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import requests
+import requests as requests
+
 from bs4 import BeautifulSoup as BS
-# import youtube_dl
 import datetime
 import json
 import urllib.parse
-import re
 import logging
 import html
 import tau_login
+import argparse
+import pathlib
 import concurrent.futures
+from video_client import VideoClient
 
 logger = logging.getLogger('scrape_videos')
 logging.basicConfig(level=logging.INFO, format='[*] %(message)s')
@@ -20,18 +22,12 @@ LOGIN_URL = "http://video.tau.ac.il/index.php"
 VIDEO_LIST_URL = "http://video.tau.ac.il/index.php?option=com_videos&Itemid=53&lang=he"
 VIDEO_VIEW_URL = "http://video.tau.ac.il/index.php?option=com_videos&Itemid=53&lang=he&view=video&id={video_id}"
 
+IMAGE_TEMPLATE = ("https://video.tau.ac.il/files/", ".jpg")
+VIDEO_TEMPLATE = ("https://vod.tau.ac.il:80/Courses/_definst_/mp4:", ".mp4/playlist.m3u8")
 
 class Video(object):
-    def __init__(self, bs_obj, s):
+    def __init__(self, bs_obj):
         self.bs_obj = bs_obj
-
-        #todo: try and construct url from thumbnail
-        # if the url is valid, cache it?
-        req = s.get(self.page_url)
-        if len(re.findall("'file': '(http://.*?\\.m3u8)'", req.content.decode())) == 0:
-            self.url = ''
-        else:
-            self.url = re.findall("'file': '(http://.*?\\.m3u8)'", req.content.decode())[0]
 
     @property
     def date(self):
@@ -57,7 +53,12 @@ class Video(object):
 
     @property
     def thumbnail(self):
-        return BASE_URL + self.bs_obj.find('img').get("src")
+        return BASE_URL + self.bs_obj.find('img').get("src").replace('http', 'https')
+
+    @property
+    def url(self):
+        uri = self.thumbnail.replace(IMAGE_TEMPLATE[0], '').replace(IMAGE_TEMPLATE[-1], '')
+        return VIDEO_TEMPLATE[0] + uri + VIDEO_TEMPLATE[1]
 
     @property
     def name(self):
@@ -78,7 +79,7 @@ def login(username, password):
     logger.info("Parsing login form")
     login = s.get(LOGIN_URL)
 
-    login_bs = BS(login.content, features="html.parser")
+    login_bs = BS(login.content, features="lxml")
     login_bs_form = login_bs.find("form")
     login_url = login_bs_form.get("action")
 
@@ -89,7 +90,7 @@ def login(username, password):
         if i.has_attr("value") and i.has_attr("name")
     }
 
-    # if the login fails, the "print inputs" and check the name of the username and password inputs
+    # if the login fails, then "print inputs" and check the name of the username and password inputs
     post_data.update({
         "username": username,
         "passwd": password
@@ -97,46 +98,27 @@ def login(username, password):
 
     # assuming login_bs_form.method is POST
     logger.info("Logging in")
-    s.post(login_url, post_data)
+    res = s.post(login_url, post_data)
+    return res.request.headers
 
-    return s
-
-def video_post_data(s):
-    logger.debug("Sending request to get form for getting videos")
-    main_page = s.get(VIDEO_LIST_URL)
-    main_page_bs = BS(main_page.content, features="html.parser")
-    main_page_form = main_page_bs.find("form", id="adminForm") 
-    inputs = main_page_form.find_all("input")
-
-    return {
-        i["name"]: i["value"]
-        for i in inputs
-        if i.has_attr("value") and i.has_attr("name")
-    }
-
-
-def get_videos(s, post_data, dep, course):
+def get_videos(s, post_data_base, dep, course):
     # get items for course post request
     logger.info("Getting metadata for %s-%s", dep, course)
 
-    post_data.update({
-        "dep_id": dep,
-        "course_id": course,
-    })
-
+    post_data = {**post_data_base, **{"dep_id": dep, "course_id": course}}
+    post_data = urllib.parse.urlencode(post_data)
+    # post_data = "dep_id=0341&course_id=2008&option=com_videos&view=videos&task=&d5165fce86105a4395f8363f3a80aa90=1"
     # get list of courses
     logger.debug("Getting course page")
-    course_main_page = s.post(VIDEO_LIST_URL, post_data)
-    course_main_page_bs = BS(course_main_page.content, features="html.parser")
+    course_main_page = s.post(VIDEO_LIST_URL, bytes(post_data, 'ascii'))
+    course_main_page_bs = BS(course_main_page, features="lxml")
 
     videos = course_main_page_bs.find_all("div", {"class": "video_item"})
 
-    logger.debug("Getting video URLs")
-    videos = [Video(v, s) for v in videos]
-    logger.debug("Got video URLs")
-
     if len(videos) == 0:
-        return None, None, None
+        return None
+
+    videos = [Video(v) for v in videos]
 
     lecture_data = {}
     for v in videos:
@@ -148,15 +130,28 @@ def get_videos(s, post_data, dep, course):
             "description": html.unescape(v.description),
         }
 
-    newest = max(videos, key=lambda v: v.parsed_date)
-
-    return lecture_data, newest.thumbnail, newest.parsed_date
+    return lecture_data
 
 
-def get_metadata(s):
+def video_post_data(s):
+    logger.debug("Sending request to get form for getting videos")
+    main_page = s.get(VIDEO_LIST_URL)
+    main_page_bs = BS(main_page, features="lxml")
+    main_page_form = main_page_bs.find("form", id="adminForm") 
+    inputs = main_page_form.find_all("input")
+
+    return {
+        i["name"]: i["value"]
+        for i in inputs
+        if i.has_attr("value") and i.has_attr("name")
+    }
+
+
+def get_metadata(headers, departments):
+    s = VideoClient(headers)
     logger.info("Getting metadata")
     vid_list = s.get(VIDEO_LIST_URL)
-    vid_list_bs = BS(vid_list.content, features="html.parser")
+    vid_list_bs = BS(vid_list, features="lxml")
 
     logger.info("Parsing department list")
     dept_select = vid_list_bs.find("select", id="dep_id").findAll("option")
@@ -164,7 +159,7 @@ def get_metadata(s):
 
     logger.info("Parsing course list JSON")
     metadata = vid_list_bs.findAll("script", type="text/javascript", src=None)
-    metadata = ''.join(i.text for i in metadata)  # resistant to extra <script> tags
+    metadata = '\n'.join(str(i) for i in metadata)  # resistant to extra <script> tags
     metadata = [i for i in metadata.splitlines() if "JSON.decode" in i][0]
 
     metadata = metadata[metadata.index("{") : metadata.rindex("}") + 1]  # bounds of actual json
@@ -188,60 +183,72 @@ def get_metadata(s):
     # }}}
     # because this will be yamled easily
 
-    def get_department(dep):
+    def get_department(dep, client):
         if dep not in dept_names:
             dept_names[dep] = f"{dep} - Uncategorized"
         courses = metadata[dep]
 
-        thumbs = {}
+        # thumbs = {}
         course_metadata = {}
         for c in courses:
-            videos, thumbnail, thumb_date = get_videos(s, video_data, dep, c)
+            videos = get_videos(client, video_data, dep, c)
             if videos == None:
                 continue
 
             course_metadata[c] = {
                 "text": html.unescape(courses[c]["text"]),
                 "videos": videos,
-                "thumbnail": thumbnail,
+                # "thumbnail": thumbnail,
             }
 
-            thumbs[thumb_date] = thumbnail
-
-        return {
+            # thumbs[thumb_date] = thumbnail
+        data = {
             "text": html.unescape(dept_names[dep]),
             "courses": course_metadata,
-            "thumbnail": thumbs[max(thumbs)],
+            # "thumbnail": thumbs[max(thumbs)],
         }
+        return dep, data
 
+    logging.info("Departments: %s", sorted(metadata.keys()))
+
+    if departments == []:
+        departments = metadata
+
+    departments = [i for i in departments if i in metadata]
+    clients = [VideoClient(headers) for i in range(len(departments))]
 
     sane_data = {}
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = {dep: executor.submit(get_department, dep) for dep in metadata}
-
-        for dep in concurrent.futures.as_completed(futures):
-                f = futures[dep]
-                try:
-                    data = f.result()
-                except Exception as exc:
-                    logging.exception("Exception scraping %u", dep, exc_info=exc)
-                else:
-                    logging.info("Done scraping %u", dep)
-                    sane_data[dep] = data
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(departments)) as executor:
+        futures = executor.map(get_department, departments, clients)
+        for dep, data in futures:
+                logging.info("Done scraping %s", dep)
+                sane_data[dep] = data
 
     return sane_data
 
 
 def main():
-    # login
-    s = login(*tau_login.creds)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('outfile', type=pathlib.Path)
+    parser.add_argument('departments', nargs='*')
+    args = parser.parse_args()
 
-    metadata = get_metadata(s)
-    with open('videos.json', 'w', encoding='utf-8') as f:
-        f.write(json.dumps(metadata))
+    headers = login(*tau_login.creds)
+    metadata = get_metadata(headers, args.departments)
 
-    return
+    if args.outfile.exists():
+        with args.outfile.open('r+', encoding='utf-8') as f:
+            old_metadata = json.load(f)
+            old_metadata.update(metadata)
+            f.seek(0)
+            json.dump(metadata,  f)
+            f.truncate()
+
+    else:
+        with args.outfile.open('w', encoding='utf-8') as f:
+            json.dump(metadata,  f)
+
 
 if __name__ == '__main__':
     main()

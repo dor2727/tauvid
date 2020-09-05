@@ -12,6 +12,13 @@ logging.basicConfig(level=logging.INFO, format='[*] %(message)s')
 def fmt_title(title):
     return f'tauvid – {title}'
 
+def parse_date(date):
+    try:
+        return datetime.strptime(date, '%d-%m-%Y')
+    except Exception:
+        return datetime.strptime('01-01-1900', '%d-%m-%Y') 
+
+
 def gen_main(metadata, env):
     # template requires [{url, thumbnail, text}]
 
@@ -73,7 +80,7 @@ def gen_course(dep_id, course_id, metadata, breadcrumbs, env):
     breadcrumbs = [i for i in breadcrumbs] + [(metadata['text'], f'/{item_uri}')]
 
     vid_dates = {v: metadata['videos'][v]['date'] for v in metadata['videos']}
-    vid_dates = {v: datetime.strptime(vid_dates[v], '%d-%m-%Y') for v in vid_dates}
+    vid_dates = {v: parse_date(vid_dates[v]) for v in vid_dates}
 
     videos = []
     for vid_id in sorted(metadata['videos'], key=lambda v: vid_dates[v], reverse=True):
@@ -121,7 +128,7 @@ def gen_video(dep_id, course_id, vid_id, metadata, breadcrumbs, env):
 
 def main(argv):
     logger.info("Loading JSON")
-    metadata = json.loads(open(argv[1], 'r', encoding='utf-8').read())
+    metadata = json.load(open(argv[1], 'r', encoding='utf-8'))
     os.makedirs('output', exist_ok=True)
 
     logger.info("Loading Templates")
@@ -129,8 +136,6 @@ def main(argv):
         loader=FileSystemLoader('templates/'),
         autoescape=select_autoescape(['html', 'xml'])
     )
-
-
 
     gen_main(metadata, env)
     logger.info("Rendering Complete")
