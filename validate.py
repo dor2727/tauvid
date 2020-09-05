@@ -95,7 +95,7 @@ def validate(cache, data, cachefile):
         valid, next_cache, clean_data = validate_dep(cache, data[dep], client)
         return dep, valid, next_cache, clean_data
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(data.keys())) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(data.keys()) + 4) as executor:
         futures = executor.map(f, data.keys(), clients)
         for dep, valid, cache_item, clean_data in futures:
                 if valid:

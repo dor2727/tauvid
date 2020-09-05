@@ -23,7 +23,7 @@ VIDEO_LIST_URL = "http://video.tau.ac.il/index.php?option=com_videos&Itemid=53&l
 VIDEO_VIEW_URL = "http://video.tau.ac.il/index.php?option=com_videos&Itemid=53&lang=he&view=video&id={video_id}"
 
 IMAGE_TEMPLATE = ("https://video.tau.ac.il/files/", ".jpg")
-VIDEO_TEMPLATE = ("https://vod.tau.ac.il:80/Courses/_definst_/mp4:", ".mp4/playlist.m3u8")
+VIDEO_TEMPLATE = ("https://vod.tau.ac.il/Courses/_definst_/mp4:", ".mp4/playlist.m3u8")
 
 class Video(object):
     def __init__(self, bs_obj):
@@ -57,7 +57,7 @@ class Video(object):
 
     @property
     def url(self):
-        uri = self.thumbnail.replace(IMAGE_TEMPLATE[0], '').replace(IMAGE_TEMPLATE[-1], '')
+        uri = self.thumbnail.replace('http', 'https').replace(IMAGE_TEMPLATE[0], '').replace(IMAGE_TEMPLATE[-1], '')
         return VIDEO_TEMPLATE[0] + uri + VIDEO_TEMPLATE[1]
 
     @property
@@ -219,7 +219,7 @@ def get_metadata(headers, departments):
 
     sane_data = {}
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(departments)) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(departments) + 4) as executor:
         futures = executor.map(get_department, departments, clients)
         for dep, data in futures:
                 logging.info("Done scraping %s", dep)

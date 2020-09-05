@@ -26,4 +26,5 @@ debug: render ./static/ ./templates/
 	cd output && python3 -m http.server
 
 deploy:
+	rm -rf /var/www/tauvid/*
 	cp -R output/. /var/www/tauvid
