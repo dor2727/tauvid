@@ -165,6 +165,15 @@ a:hover {
     ul.breadcrumb li > a:hover {
         background-color: rgba(255, 255, 255, 0.3);
     }
+
+    #video-controls {
+        flex-wrap: wrap;
+    }
+
+    #video-controls div {
+        flex-basis: 100%;
+        text-align: center;
+    }
 }
 
 @media screen and (min-width: 64em) {

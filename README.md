@@ -21,6 +21,6 @@ asset pipeline breaks when includes are in the wrong order, should probably add 
 
 mobile video.html css
 
-volume boost
+volume boost above 100%
 
 "my courses" in cookies

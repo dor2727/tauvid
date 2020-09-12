@@ -19,7 +19,7 @@ all:
 	make validate
 	make render
 
-debug: render ./static/ ./templates/
+debug:
 	python3 scrape_videos.py debug.json 0104
 	python3 validate.py debug.json debug_cache.json
 	rm -rf output
