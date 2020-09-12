@@ -8,22 +8,11 @@ scrape:
 validate: videos.json
 	python3 validate.py videos.json cache.json
 
-render: assets videos.json
+render: videos.json
 	rm -rf output
 	mkdir output
 	python3 render.py videos.json
 	cp -R static/. output
-
-assets:
-	curl "https://unpkg.com/purecss@2.0.3/build/pure-min.css" -o "static/css/pure-min.css"
-	curl "https://unpkg.com/purecss@2.0.3/build/grids-responsive-min.css" -o "static/css/grids-responsive-min.css"
-	curl "fonts.googleapis.com/earlyaccess/opensanshebrew.css" -o "static/css/opensanshebrew.css"
-	curl "stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" -o "static/css/font-awesome.min.css"
-
-	curl "https://cdn.jsdelivr.net/npm/hls.js@latest" -o "static/js/hls.js"
-
-	cat static/css/*.css > static/style.css
-	cat static/js/*.js > static/script.js
 
 all: 
 	make scrape
@@ -31,6 +20,12 @@ all:
 	make render
 
 debug: render ./static/ ./templates/
+	python3 scrape_videos.py debug.json 0104
+	python3 validate.py debug.json debug_cache.json
+	rm -rf output
+	mkdir output
+	python3 render.py debug.json
+	cp -R static/. output
 	cd output && python3 -m http.server
 
 deploy:

@@ -14,4 +14,13 @@ To render, run `render.py` and then serve the `output` directory as a static sit
 
 ### TODO:
 uncategorized
+
 login like bid-it
+
+asset pipeline breaks when includes are in the wrong order, should probably add SASS or something
+
+mobile video.html css
+
+volume boost
+
+"my courses" in cookies
