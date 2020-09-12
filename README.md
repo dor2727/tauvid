@@ -13,13 +13,9 @@ then run `scrape_videos.py`.
 To render, run `render.py` and then serve the `output` directory as a static site.
 
 ### TODO:
-uncategorized
-
 login like bid-it
 
 asset pipeline breaks when includes are in the wrong order, should probably add SASS or something
-
-mobile video.html css
 
 volume boost above 100%
 

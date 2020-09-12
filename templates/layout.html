@@ -32,6 +32,11 @@
 
     <link rel="stylesheet" href="/css/style.css">
 
+    <meta name="google-signin-scope" content="email">
+    <meta name="google-signin-client_id" content="55911848801-gf0dm7722gu9pqtj57990n2lvq12vcv8.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js?onload=init_gapi" async defer></script>
+    <script src="/js/login.js"></script>
+
     {% block scripts %}{% endblock %}
   </head>
 
@@ -56,6 +61,7 @@
     </div>
 
     <div id="footer">
+        <div><a id="sign-out">Sign out</a></div>
     </div>
   </body>
 

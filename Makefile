@@ -19,6 +19,13 @@ all:
 	make validate
 	make render
 
+debug-render:
+	rm -rf output
+	mkdir output
+	python3 render.py debug.json
+	cp -R static/. output
+	cd output && python3 -m http.server
+
 debug:
 	python3 scrape_videos.py debug.json 0104
 	python3 validate.py debug.json debug_cache.json

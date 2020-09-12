@@ -30,13 +30,11 @@ body, html, button, input, select, textarea,
 
 a {
     text-decoration: none;
-    // color: var(--aero-blue);
     color: var(--tau-black);
 }
 
 a:hover {
     text-decoration: none;
-    // color: var(--aero-light);
     color: var(--tau-black);
 }
 
@@ -60,6 +58,13 @@ a:hover {
     justify-content: center;
     background-color: var(--tau-black);
     flex-shrink: 0;
+    display: flex;
+    text-align: center;
+}
+
+#sign-out {
+    color: white;
+    padding: 3rem;
 }
 
 #header-text {
