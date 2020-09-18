@@ -242,3 +242,8 @@ a:hover {
 #login-error {
     color: var(--error-red);
 }
+
+.legalese {
+    font-size: 0.7rem;
+    color: var(--gray-6);
+}
