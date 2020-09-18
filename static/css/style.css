@@ -55,6 +55,7 @@ a:hover {
     width: 100%;
     margin-top: 100px;
     min-height: 40px;
+    padding: 10px;
     color: white;
     justify-content: center;
     background-color: var(--tau-black);
