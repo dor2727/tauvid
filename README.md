@@ -1,22 +1,19 @@
 # tauvid
 
-Work in progress.
-
 To scrape, create a file called tau_login.py in the root directory:
 
 ```python
 creds = ('<tau username>', '<tau password>')
 ```
 
-then run `scrape_videos.py`.
+then run `make scrape`.
 
-To render, run `render.py` and then serve the `output` directory as a static site.
+Run `make validate` to check that all scraped videos exist and have valid thumbnails.
+
+To render, run `make render` and then serve the `output` directory as a static site.
 
 ### TODO:
-login like bid-it
 
-asset pipeline breaks when includes are in the wrong order, should probably add SASS or something
-
-volume boost above 100%
-
-"my courses" in cookies
+- volume boost above 100%
+- move to https://oauth2-proxy.github.io/oauth2-proxy/configuration
+- "my courses" in cookies
