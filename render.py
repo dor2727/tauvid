@@ -19,20 +19,6 @@ def parse_date(date):
         return datetime.strptime('01-01-1900', '%d-%m-%Y') 
 
 
-def gen_login(env):
-    # template requires [{url, thumbnail, text}]
-
-    breadcrumbs = [('tauvid', '/')]
-
-    logger.info("Rendering Login Page")
-    rendered = env.get_template('login.html').render(
-        breadcrumbs=breadcrumbs,
-        title='tauvid'
-    )
-
-    with open('output/index.html', 'w', encoding='utf-8') as f:
-        f.write(rendered)
-
 def gen_main(metadata, env):
     # template requires [{url, thumbnail, text}]
 
@@ -54,8 +40,8 @@ def gen_main(metadata, env):
         title='tauvid'
     )
 
-    os.makedirs(f'output/tau', exist_ok=True)
-    with open('output/tau/index.html', 'w', encoding='utf-8') as f:
+    os.makedirs(f'output/', exist_ok=True)
+    with open('output/index.html', 'w', encoding='utf-8') as f:
         f.write(rendered)
 
 def gen_department(dep_id, metadata, breadcrumbs, env):
@@ -152,7 +138,6 @@ def main(argv):
         autoescape=select_autoescape(['html', 'xml'])
     )
 
-    gen_login(env)
     gen_main(metadata, env)
     logger.info("Rendering Complete")
 

@@ -31,11 +31,11 @@
     <link rel="stylesheet" href="//fonts.googleapis.com/earlyaccess/opensanshebrew.css">
 
     <link rel="stylesheet" href="/css/style.css">
-
     <meta name="google-signin-scope" content="email">
     <meta name="google-signin-client_id" content="55911848801-gf0dm7722gu9pqtj57990n2lvq12vcv8.apps.googleusercontent.com">
     <script src="https://apis.google.com/js/platform.js?onload=init_gapi" async defer></script>
     <script src="/js/login.js"></script>
+    <style id="gapi-style"></style>
 
     {% block scripts %}{% endblock %}
   </head>
@@ -55,7 +55,20 @@
               <li><span>{{breadcrumbs[-1][0]}}</span></li>
             </ul> 
         </div>
-        <div>
+        <div class="unauth">
+            <div id="breadcrumbs"></div>
+            <div class="pure-g">
+                <div class="pure-u-1 center ltr">
+                    <div class="limit-width text-container" id="sign-in-text">
+                        <button id="sign-in">Sign In</button>
+                        <h3 id="login-error"></h3>
+                        <h3>Sign in with your <code>tau.ac.il</code> email to access this site</h3>
+                        <p>Sign in may be broken by your ad-blocker</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="auth">
             {% block content %}{% endblock %}
         </div>
     </div>

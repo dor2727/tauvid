@@ -1,6 +1,7 @@
 :root {
     --tau-black: #001718;
     --tau-blue: #66bff1;
+    --error-red: #b01c12;
     --gray-1: #202020;
     --gray-2: #404040;
     --gray-3: #606060;
@@ -60,11 +61,6 @@ a:hover {
     flex-shrink: 0;
     display: flex;
     text-align: center;
-}
-
-#sign-out {
-    color: white;
-    padding: 3rem;
 }
 
 #header-text {
@@ -211,4 +207,37 @@ a:hover {
     ul.breadcrumb li > a:hover {
         background-color: rgba(255, 255, 255, 0.3);
     }
+}
+
+#sign-out {
+    color: white;
+    cursor: pointer;
+}
+
+#sign-in {
+    display: block;
+    font-size: 1.5rem;
+    color: white;
+    background-color: var(--tau-black);
+    margin: 10px;
+    padding: 15px;
+    text-decoration: none;
+    border: 0;
+}
+
+#sign-in:active {
+    position:relative;
+    top:1px;
+}
+
+.auth {
+    display: none;
+}
+
+.ltr {
+    direction: ltr;
+}
+
+#login-error {
+    color: var(--error-red);
 }
