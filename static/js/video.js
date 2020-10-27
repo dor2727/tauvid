@@ -49,4 +49,13 @@ onReady(function(){
 
     slower.addEventListener('click', gen_handle_speed(video, speed_indicator, -0.1));
     faster.addEventListener('click', gen_handle_speed(video, speed_indicator, +0.1));
+
+    document.addEventListener("keyup", function(event) {
+        if (event.key == "+") {
+            document.getElementById("video-speed-up").click();
+        }
+        if (event.key == "-") {
+            document.getElementById("video-speed-down").click();
+        }
+    });
 });
